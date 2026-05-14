@@ -11,21 +11,30 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-aove7-6^fskd-mrat)*ptwcg3yfuw(141$+)29bdtdn&$*(!8m'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+from dotenv import load_dotenv
+
+# .env ফাইল লোড করা হচ্ছে
+load_dotenv()
+
+# এখন আগের হার্ডকোড করা ভ্যালুগুলো পরিবর্তন করে এভাবে লিখুন:
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG') == 'True'
+
+# Google Redirect URI settings.py এর নিচে যোগ করুন
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+
+ALLOWED_HOSTS = ['https://nephelinitic-kaiden-instinctive.ngrok-free.dev/', 'localhost', '[IP_ADDRESS]', '*']   
 
 
 # Application definition
@@ -190,3 +199,21 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True # Change this for production
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}

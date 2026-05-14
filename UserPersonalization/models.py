@@ -4,7 +4,22 @@ from django.conf import settings
 class UserPreference(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='personalization')
     
-    # Topics of interest (Stored as JSON or comma-separated string)
+    # Topics of interest
+    TOPIC_CHOICES = [
+        ('reduce_stress', 'Reduce Stress'),
+        ('better_sleep', 'Better Sleep'),
+        ('focus', 'Focus'),
+        ('anxiety_relief', 'Anxiety Relief'),
+        ('self_love', 'Self-love'),
+        ('confidence', 'Confidence'),
+        ('motivation', 'Motivation'),
+        ('trauma_depression', 'Get over trauma and depression'),
+        ('gratitude', 'Develop Gratitude'),
+        ('reduce_anxiety', 'Reduce Anxiety'),
+        ('self_esteem', 'Build Self Esteem'),
+        ('increase_happiness', 'Increase Happiness'),
+        ('improve_performance', 'Improve Performance'),
+    ]
     topics = models.JSONField(default=list, help_text="List of topics of interest")
     
     # Personalize tone
@@ -19,6 +34,14 @@ class UserPreference(models.Model):
     birth_year = models.IntegerField(null=True, blank=True)
     
     # Obstacles
+    OBSTACLE_CHOICES = [
+        ('low_motivation', 'Low motivation'),
+        ('limited_time', 'Limited time'),
+        ('unclear_goals', 'Unclear goals'),
+        ('fear_failure', 'Fear of failure'),
+        ('procrastination', 'Procrastination'),
+        ('financial_constraints', 'Financial constraints'),
+    ]
     obstacles = models.JSONField(default=list, help_text="What prevents you from achieving results?")
     
     # Practice Time
