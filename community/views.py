@@ -34,6 +34,19 @@ class CommentListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         post = get_object_or_404(Post, id=self.kwargs['post_id'])
         serializer.save(user=self.request.user, post=post)
+        
+        # Notify post owner if commenter is not the post owner
+        if post.user != self.request.user:
+            from notifications.models import Notification
+            commenter_name = f"{self.request.user.first_name} {self.request.user.last_name}".strip() or self.request.user.email
+            comment_content = serializer.validated_data.get('content', '')
+            truncated_comment = (comment_content[:50] + '...') if len(comment_content) > 50 else comment_content
+            Notification.objects.create(
+                user=post.user,
+                title="New Comment on Your Post",
+                message=f"{commenter_name} commented on your post: \"{truncated_comment}\"",
+                notification_type='comment'
+            )
 
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -45,6 +58,17 @@ class LikeToggleView(APIView):
         if not created:
             like.delete()
             return Response({"message": "Post unliked", "is_liked": False}, status=status.HTTP_200_OK)
+        
+        # Notify post owner if liked by someone else
+        if post.user != request.user:
+            from notifications.models import Notification
+            liker_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+            Notification.objects.create(
+                user=post.user,
+                title="Post Liked",
+                message=f"{liker_name} liked your post.",
+                notification_type='like'
+            )
         
         return Response({"message": "Post liked", "is_liked": True}, status=status.HTTP_201_CREATED)
 
@@ -68,6 +92,17 @@ class SharePostView(APIView):
         post = get_object_or_404(Post, id=post_id)
         post.share_count += 1
         post.save()
+        
+        # Notify post owner if shared by someone else (authenticated user)
+        if request.user.is_authenticated and post.user != request.user:
+            from notifications.models import Notification
+            sharer_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+            Notification.objects.create(
+                user=post.user,
+                title="Post Shared",
+                message=f"{sharer_name} shared your post.",
+                notification_type='share'
+            )
         return Response({"message": "Post shared", "share_count": post.share_count}, status=status.HTTP_200_OK)
 
 class ReportCreateView(generics.CreateAPIView):

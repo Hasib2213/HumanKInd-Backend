@@ -47,3 +47,10 @@ class ReportSerializer(serializers.ModelSerializer):
         model = Report
         fields = ['id', 'post', 'title', 'description', 'created_at']
         read_only_fields = ['created_at']
+
+class SavedPostSerializer(serializers.ModelSerializer):
+    post = PostSerializer(read_only=True)
+    
+    class Meta:
+        model = SavedPost
+        fields = ['id', 'post', 'created_at']

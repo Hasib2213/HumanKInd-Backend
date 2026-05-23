@@ -33,6 +33,10 @@ DEBUG = os.getenv('DEBUG') == 'True'
 
 # Google Redirect URI settings.py এর নিচে যোগ করুন
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+SSL_COMMERZ_STORE_ID = os.getenv('STORE_ID')
+SSL_COMMERZ_STORE_PASS = os.getenv('STORE_PASS')
+SSL_COMMERZ_SANDBOX = os.getenv('SSL_COMMERZ_SANDBOX', 'True') == 'True'
+SSL_COMMERZ_BASE_URL = 'https://sandbox.sslcommerz.com' if SSL_COMMERZ_SANDBOX else 'https://securepay.sslcommerz.com'
 
 ALLOWED_HOSTS = ['https://nephelinitic-kaiden-instinctive.ngrok-free.dev/', 'localhost', '[IP_ADDRESS]', '*']   
 
@@ -60,6 +64,10 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
     'corsheaders',
     'community',
+    'user_profile',
+    'content',
+    'subscriptions',
+    'notifications',
 ]
 
 MIDDLEWARE = [

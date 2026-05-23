@@ -22,6 +22,9 @@ urlpatterns = [
     path('api/auth/', include('Authapp.urls')),
     path('api/personalization/', include('UserPersonalization.urls')),
     path('api/community/', include('community.urls')),
+    path('api/profile/', include('user_profile.urls')),
+    path('api/subscriptions/', include('subscriptions.urls')),
+    path('api/notifications/', include('notifications.urls')),
 ]
 from django.conf import settings
 from django.conf.urls.static import static
