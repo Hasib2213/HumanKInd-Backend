@@ -326,6 +326,13 @@ Here is the master checklist detailing every endpoint developed in this backend 
   }
   ```
 
+
+  To reply each other ,at same url give this input:
+  {
+  "content": "Eta reply",
+  "parent": 12
+}
+
 #### Submit Content Report (`POST /api/community/reports/`)
 * **Payload Structure**:
   ```json

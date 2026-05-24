@@ -5,6 +5,19 @@ from django.shortcuts import get_object_or_404
 from .models import Post, Comment, Like, SavedPost, Report
 from .serializers import PostSerializer, CommentSerializer, ReportSerializer
 
+
+def create_notification(user, title, message, notification_type):
+    if not user:
+        return
+    from notifications.models import Notification
+
+    Notification.objects.create(
+        user=user,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+    )
+
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
@@ -28,24 +41,39 @@ class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
+        return context
+
     def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['post_id']).order_by('-created_at')
+        return Comment.objects.filter(post_id=self.kwargs['post_id'], parent__isnull=True).order_by('created_at')
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, id=self.kwargs['post_id'])
-        serializer.save(user=self.request.user, post=post)
+        parent = serializer.validated_data.get('parent')
+        comment = serializer.save(user=self.request.user, post=post)
         
+        commenter_name = f"{self.request.user.first_name} {self.request.user.last_name}".strip() or self.request.user.email
+        comment_content = serializer.validated_data.get('content', '')
+        truncated_comment = (comment_content[:50] + '...') if len(comment_content) > 50 else comment_content
+
         # Notify post owner if commenter is not the post owner
         if post.user != self.request.user:
-            from notifications.models import Notification
-            commenter_name = f"{self.request.user.first_name} {self.request.user.last_name}".strip() or self.request.user.email
-            comment_content = serializer.validated_data.get('content', '')
-            truncated_comment = (comment_content[:50] + '...') if len(comment_content) > 50 else comment_content
-            Notification.objects.create(
-                user=post.user,
-                title="New Comment on Your Post",
-                message=f"{commenter_name} commented on your post: \"{truncated_comment}\"",
-                notification_type='comment'
+            create_notification(
+                post.user,
+                "New Comment on Your Post",
+                f"{commenter_name} commented on your post: \"{truncated_comment}\"",
+                'comment',
+            )
+
+        # Notify the parent comment owner if this is a reply.
+        if parent and parent.user != self.request.user:
+            create_notification(
+                parent.user,
+                "New Reply on Your Comment",
+                f"{commenter_name} replied to your comment: \"{truncated_comment}\"",
+                'comment',
             )
 
 class LikeToggleView(APIView):
