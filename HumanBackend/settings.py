@@ -27,6 +27,10 @@ from dotenv import load_dotenv
 # .env ফাইল লোড করা হচ্ছে
 load_dotenv()
 
+MONGO_URI = os.getenv('MONGO_URI')
+MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'HumanKind')
+DATABASE_ENGINE = os.getenv('DATABASE_ENGINE', 'django_mongodb_backend').lower()
+
 # এখন আগের হার্ডকোড করা ভ্যালুগুলো পরিবর্তন করে এভাবে লিখুন:
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG') == 'True'
@@ -44,9 +48,9 @@ ALLOWED_HOSTS = ['https://nephelinitic-kaiden-instinctive.ngrok-free.dev/', 'loc
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'HumanBackend.mongo_app_configs.MongoAdminConfig',
+    'HumanBackend.mongo_app_configs.MongoAuthConfig',
+    'HumanBackend.mongo_app_configs.MongoContentTypesConfig',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -56,10 +60,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'dj_rest_auth',
-    'django.contrib.sites',
+    'HumanBackend.mongo_app_configs.MongoSitesConfig',
     'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    'HumanBackend.mongo_app_configs.MongoAccountConfig',
+    'HumanBackend.mongo_app_configs.MongoSocialAccountConfig',
     'allauth.socialaccount.providers.google',
     'dj_rest_auth.registration',
     'corsheaders',
@@ -105,12 +109,21 @@ WSGI_APPLICATION = 'HumanBackend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DATABASE_ENGINE in {'sqlite', 'sqlite3', 'django.db.backends.sqlite3'}:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_mongodb_backend',
+            'HOST': MONGO_URI or '',
+            'NAME': MONGO_DB_NAME,
+        }
+    }
 
 
 # Password validation
@@ -158,7 +171,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
 
 AUTH_USER_MODEL = 'Authapp.User'
 
@@ -168,7 +181,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-SITE_ID = 1
+SITE_ID = os.getenv('SITE_ID', '507f1f77bcf86cd799439011')
 
 # SimpleJWT settings
 from datetime import timedelta

@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.conf import settings
+from django_mongodb_backend.fields import ObjectIdAutoField
 from django.db import migrations, models
 
 
@@ -17,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Notification',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=255)),
                 ('message', models.TextField()),
                 ('notification_type', models.CharField(choices=[('info', 'Information'), ('alert', 'Alert'), ('subscription', 'Subscription Alert')], default='info', max_length=20)),

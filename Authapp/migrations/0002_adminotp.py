@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.conf import settings
+from django_mongodb_backend.fields import ObjectIdAutoField
 from django.db import migrations, models
 
 
@@ -15,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AdminOTP',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('otp_code', models.CharField(max_length=6)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('is_used', models.BooleanField(default=False)),

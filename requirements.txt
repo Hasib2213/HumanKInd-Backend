@@ -30,7 +30,8 @@ distlib
 distro
 dj-database-url
 dj-rest-auth
-Django
+Django==5.2.14
+django-mongodb-backend==5.2.3
 django-allauth
 django-cors-headers
 django-crispy-forms

@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.conf import settings
+from django_mongodb_backend.fields import ObjectIdAutoField
 from django.db import migrations, models
 
 
@@ -21,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PaymentTransaction',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('transaction_id', models.CharField(max_length=100, unique=True)),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('currency', models.CharField(default='BDT', max_length=10)),

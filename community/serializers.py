@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import Post, Comment, Like, SavedPost, Report
 from Authapp.serializers import UserSerializer
+from HumanBackend.serializer_utils import MongoModelSerializer, MongoPrimaryKeyRelatedField
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(MongoModelSerializer):
     user = UserSerializer(read_only=True)
-    parent = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False, allow_null=True)
+    parent = MongoPrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False, allow_null=True)
     replies = serializers.SerializerMethodField()
     
     class Meta:
@@ -21,7 +22,7 @@ class CommentSerializer(serializers.ModelSerializer):
         replies = obj.replies.select_related('user', 'parent').order_by('created_at')
         return CommentSerializer(replies, many=True, context=self.context).data
 
-class PostSerializer(serializers.ModelSerializer):
+class PostSerializer(MongoModelSerializer):
     user = serializers.SerializerMethodField()
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
     comments_count = serializers.IntegerField(source='comments.count', read_only=True)
@@ -64,13 +65,15 @@ class PostSerializer(serializers.ModelSerializer):
         root_comments = obj.comments.filter(parent__isnull=True).select_related('user', 'parent').order_by('created_at')
         return CommentSerializer(root_comments, many=True, context=self.context).data
 
-class ReportSerializer(serializers.ModelSerializer):
+class ReportSerializer(MongoModelSerializer):
+    post = MongoPrimaryKeyRelatedField(queryset=Post.objects.all())
+
     class Meta:
         model = Report
         fields = ['id', 'post', 'title', 'description', 'created_at']
         read_only_fields = ['created_at']
 
-class SavedPostSerializer(serializers.ModelSerializer):
+class SavedPostSerializer(MongoModelSerializer):
     post = PostSerializer(read_only=True)
     
     class Meta:

@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.conf import settings
+from django_mongodb_backend.fields import ObjectIdAutoField
 from django.db import migrations, models
 
 
@@ -17,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserPreference',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('topics', models.JSONField(default=list, help_text='List of topics of interest')),
                 ('tone', models.CharField(choices=[('gentle', 'Gentle & Nurturing'), ('bold', 'Bold & Empowering'), ('spiritual', 'Spiritual and Mindful')], max_length=20)),
                 ('birth_year', models.IntegerField(blank=True, null=True)),

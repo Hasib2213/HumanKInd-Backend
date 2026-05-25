@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import UserPreference
+from HumanBackend.serializer_utils import MongoModelSerializer
 
-class UserPreferenceSerializer(serializers.ModelSerializer):
+class UserPreferenceSerializer(MongoModelSerializer):
     topics = serializers.MultipleChoiceField(choices=UserPreference.TOPIC_CHOICES, required=False)
     obstacles = serializers.MultipleChoiceField(choices=UserPreference.OBSTACLE_CHOICES, required=False)
     

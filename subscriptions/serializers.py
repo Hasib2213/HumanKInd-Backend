@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from .models import SubscriptionPlan, UserSubscription
+from HumanBackend.serializer_utils import MongoModelSerializer
 
-class SubscriptionPlanSerializer(serializers.ModelSerializer):
+class SubscriptionPlanSerializer(MongoModelSerializer):
     class Meta:
         model = SubscriptionPlan
         fields = ['id', 'name', 'description', 'price', 'duration_days', 'most_popular', 'trial_days', 'is_active']
 
-class UserSubscriptionSerializer(serializers.ModelSerializer):
+class UserSubscriptionSerializer(MongoModelSerializer):
     plan = SubscriptionPlanSerializer(read_only=True)
     
     class Meta:

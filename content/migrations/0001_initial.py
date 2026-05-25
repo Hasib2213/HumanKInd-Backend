@@ -2,6 +2,7 @@
 
 import django.db.models.deletion
 from django.conf import settings
+from django_mongodb_backend.fields import ObjectIdAutoField
 from django.db import migrations, models
 
 
@@ -17,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Affirmation',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('text', models.TextField()),
                 ('audio_file', models.FileField(blank=True, null=True, upload_to='affirmations/audio/')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
@@ -26,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Meditation',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=255)),
                 ('description', models.TextField(blank=True)),
                 ('thumbnail', models.ImageField(blank=True, null=True, upload_to='meditations/thumbnails/')),
@@ -38,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SavedAffirmation',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('saved_at', models.DateTimeField(auto_now_add=True)),
                 ('affirmation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_by', to='content.affirmation')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_affirmations', to=settings.AUTH_USER_MODEL)),
@@ -50,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SavedMeditation',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', ObjectIdAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('saved_at', models.DateTimeField(auto_now_add=True)),
                 ('meditation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_by', to='content.meditation')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_meditations', to=settings.AUTH_USER_MODEL)),

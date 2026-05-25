@@ -25,7 +25,7 @@ Welcome to the backend architecture powering the **HumanKind** ecosystem. This r
 - **Framework**: Django `v5.2.14`
 - **API Framework**: Django REST Framework `v3.15`
 - **Security**: SimpleJWT (JSON Web Token), Django-Allauth, DJ-Rest-Auth
-- **Database**: SQLite (Development) / PostgreSQL compatible (Production-ready)
+- **Database**: MongoDB Atlas via Django MongoDB Backend (or SQLite if `DATABASE_ENGINE=sqlite3`)
 - **File Uploads**: Supports local or cloud storage for profile pictures and high-quality community audio uploads.
 
 ---
@@ -58,6 +58,16 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
 ```
+
+If you are using MongoDB Atlas, add these variables to your `.env` file:
+
+```env
+DATABASE_ENGINE=django_mongodb_backend
+MONGO_URI=mongodb+srv://<username>:<password>@nikooai.lri8ass.mongodb.net/?appName=NIkooAI
+MONGO_DB_NAME=HumanKind
+```
+
+Keep the database name separate because the Atlas URI you shared does not include one.
 
 ### 4. Run Development Server
 ```bash
@@ -139,14 +149,14 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/community/posts/` | JWT (Required) | Retrieve the community feed. |
 | **`[x]`** | `POST` | `/api/community/posts/` | JWT (Required) | Share a post (supports text, audio uploads, and optional anonymity). |
-| **`[x]`** | `GET` | `/api/community/posts/<int:pk>/` | JWT (Required) | Retrieve details for a single community post. |
-| **`[x]`** | `PUT` / `PATCH` | `/api/community/posts/<int:pk>/` | JWT (Required) | Modify contents of a post (restricted to post author). |
-| **`[x]`** | `DELETE` | `/api/community/posts/<int:pk>/` | JWT (Required) | Permanently delete a community post (restricted to post author). |
-| **`[x]`** | `GET` | `/api/community/posts/<int:post_id>/comments/` | JWT (Required) | Fetch comments associated with a specific community post. |
-| **`[x]`** | `POST` | `/api/community/posts/<int:post_id>/comments/` | JWT (Required) | Write a new comment on a community post. |
-| **`[x]`** | `POST` | `/api/community/posts/<int:post_id>/like/` | JWT (Required) | Toggle like state (increments or decrements total likes). |
-| **`[x]`** | `POST` | `/api/community/posts/<int:post_id>/save/` | JWT (Required) | Toggle save/bookmark state. |
-| **`[x]`** | `POST` | `/api/community/posts/<int:post_id>/share/` | JWT (Required) | Increment post share count tracking. |
+| **`[x]`** | `GET` | `/api/community/posts/<str:pk>/` | JWT (Required) | Retrieve details for a single community post. |
+| **`[x]`** | `PUT` / `PATCH` | `/api/community/posts/<str:pk>/` | JWT (Required) | Modify contents of a post (restricted to post author). |
+| **`[x]`** | `DELETE` | `/api/community/posts/<str:pk>/` | JWT (Required) | Permanently delete a community post (restricted to post author). |
+| **`[x]`** | `GET` | `/api/community/posts/<str:post_id>/comments/` | JWT (Required) | Fetch comments associated with a specific community post. |
+| **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/comments/` | JWT (Required) | Write a new comment on a community post. |
+| **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/like/` | JWT (Required) | Toggle like state (increments or decrements total likes). |
+| **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/save/` | JWT (Required) | Toggle save/bookmark state. |
+| **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/share/` | JWT (Required) | Increment post share count tracking. |
 | **`[x]`** | `POST` | `/api/community/reports/` | JWT (Required) | File an anonymous or registered report against a post for moderation. |
 
 ### 💳 5. Subscription Services (`subscriptions`)
