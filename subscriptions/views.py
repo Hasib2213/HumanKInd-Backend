@@ -87,7 +87,9 @@ def _get_sslcommerz_urls(request):
 
 def _build_gateway_payload(request, transaction):
     success_url, fail_url, cancel_url = _get_sslcommerz_urls(request)
-    full_name = request.user.get_full_name() or request.user.email or 'Customer'
+    first_name = getattr(request.user, 'first_name', '') or ''
+    last_name = getattr(request.user, 'last_name', '') or ''
+    full_name = f'{first_name} {last_name}'.strip() or getattr(request.user, 'email', '') or 'Customer'
 
     return {
         'store_id': settings.SSL_COMMERZ_STORE_ID,
@@ -267,7 +269,7 @@ def _finalize_sslcommerz_payment(request, outcome):
             {
                 'message': 'Payment verified and subscription activated.',
                 'transaction_id': transaction.transaction_id,
-                'subscription_id': subscription.id,
+                'subscription_id': str(subscription.id),
                 'status': subscription.status,
             },
             status=status.HTTP_200_OK,
