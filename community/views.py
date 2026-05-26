@@ -76,6 +76,22 @@ class CommentListCreateView(generics.ListCreateAPIView):
                 'comment',
             )
 
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
+        return context
+
+    def get_queryset(self):
+        # Users can only update or delete their own comments
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return Comment.objects.filter(user=self.request.user, post_id=self.kwargs.get('post_id'))
+        return Comment.objects.filter(post_id=self.kwargs.get('post_id'))
+
 class LikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
