@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import certifi
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +31,12 @@ load_dotenv()
 MONGO_URI = os.getenv('MONGO_URI')
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'HumanKind')
 DATABASE_ENGINE = os.getenv('DATABASE_ENGINE', 'django_mongodb_backend').lower()
+MONGO_TLS = os.getenv('MONGO_TLS', 'True') == 'True'
+MONGO_TLS_CA_FILE = os.getenv('MONGO_TLS_CA_FILE') or certifi.where()
+MONGO_TLS_ALLOW_INVALID_CERTS = os.getenv('MONGO_TLS_ALLOW_INVALID_CERTS', 'False') == 'True'
+MONGO_SERVER_SELECTION_TIMEOUT_MS = int(os.getenv('MONGO_SERVER_SELECTION_TIMEOUT_MS', '30000'))
+MONGO_CONNECT_TIMEOUT_MS = int(os.getenv('MONGO_CONNECT_TIMEOUT_MS', '20000'))
+MONGO_SOCKET_TIMEOUT_MS = int(os.getenv('MONGO_SOCKET_TIMEOUT_MS', '20000'))
 
 # এখন আগের হার্ডকোড করা ভ্যালুগুলো পরিবর্তন করে এভাবে লিখুন:
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -117,11 +124,25 @@ if DATABASE_ENGINE in {'sqlite', 'sqlite3', 'django.db.backends.sqlite3'}:
         }
     }
 else:
+    mongo_options = {
+        'serverSelectionTimeoutMS': MONGO_SERVER_SELECTION_TIMEOUT_MS,
+        'connectTimeoutMS': MONGO_CONNECT_TIMEOUT_MS,
+        'socketTimeoutMS': MONGO_SOCKET_TIMEOUT_MS,
+    }
+
+    if MONGO_TLS:
+        mongo_options['tls'] = True
+        mongo_options['tlsCAFile'] = MONGO_TLS_CA_FILE
+
+    if MONGO_TLS_ALLOW_INVALID_CERTS:
+        mongo_options['tlsAllowInvalidCertificates'] = True
+
     DATABASES = {
         'default': {
             'ENGINE': 'django_mongodb_backend',
             'HOST': MONGO_URI or '',
             'NAME': MONGO_DB_NAME,
+            'OPTIONS': mongo_options,
         }
     }
 

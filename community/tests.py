@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from Authapp.models import User
 from .models import Post, Comment, Like
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 class CommunityTests(APITestCase):
     def setUp(self):
@@ -88,5 +89,36 @@ class CommunityTests(APITestCase):
 
         url = reverse('comment-list-create', kwargs={'post_id': second_post.id})
         response = self.client.post(url, {'content': 'Bad reply', 'parent': parent_comment.id}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_comment_with_image_and_text(self):
+        post = Post.objects.create(user=self.user, content='Image post')
+        url = reverse('comment-list-create', kwargs={'post_id': post.id})
+
+        upload = SimpleUploadedFile('comment.webp', b'fake-webp-bytes', content_type='image/webp')
+
+        response = self.client.post(
+            url,
+            {'content': 'Here is a picture', 'image': upload},
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('image', response.data)
+        self.assertIsNotNone(response.data['image'])
+        self.assertEqual(Comment.objects.count(), 1)
+
+    def test_create_comment_rejects_unsupported_attachment_extension(self):
+        post = Post.objects.create(user=self.user, content='Attachment post')
+        url = reverse('comment-list-create', kwargs={'post_id': post.id})
+
+        upload = SimpleUploadedFile('comment.txt', b'not an image', content_type='text/plain')
+
+        response = self.client.post(
+            url,
+            {'content': 'Bad attachment', 'image': upload},
+            format='multipart',
+        )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

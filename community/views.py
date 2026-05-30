@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, status
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -40,6 +41,7 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -56,14 +58,16 @@ class CommentListCreateView(generics.ListCreateAPIView):
         
         commenter_name = f"{self.request.user.first_name} {self.request.user.last_name}".strip() or self.request.user.email
         comment_content = serializer.validated_data.get('content', '')
+        has_image = bool(serializer.validated_data.get('image'))
         truncated_comment = (comment_content[:50] + '...') if len(comment_content) > 50 else comment_content
+        comment_summary = truncated_comment or ('an image' if has_image else 'a comment')
 
         # Notify post owner if commenter is not the post owner
         if post.user != self.request.user:
             create_notification(
                 post.user,
                 "New Comment on Your Post",
-                f"{commenter_name} commented on your post: \"{truncated_comment}\"",
+                f"{commenter_name} commented on your post: \"{comment_summary}\"",
                 'comment',
             )
 
@@ -72,7 +76,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
             create_notification(
                 parent.user,
                 "New Reply on Your Comment",
-                f"{commenter_name} replied to your comment: \"{truncated_comment}\"",
+                f"{commenter_name} replied to your comment: \"{comment_summary}\"",
                 'comment',
             )
 
@@ -80,6 +84,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

@@ -1,5 +1,25 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from pathlib import Path
+
+
+ALLOWED_COMMENT_IMAGE_EXTENSIONS = {
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.webp',
+    '.bmp',
+    '.tif',
+    '.tiff',
+}
+
+
+def validate_comment_image_file(value):
+    suffix = Path(value.name).suffix.lower()
+    if suffix not in ALLOWED_COMMENT_IMAGE_EXTENSIONS:
+        raise ValidationError('Unsupported image format.')
 
 class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
@@ -23,7 +43,13 @@ class Comment(models.Model):
         blank=True,
         null=True,
     )
-    content = models.TextField()
+    content = models.TextField(blank=True)
+    image = models.FileField(
+        upload_to='community/comment_images/',
+        blank=True,
+        null=True,
+        validators=[validate_comment_image_file],
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

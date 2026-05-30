@@ -10,13 +10,22 @@ class CommentSerializer(MongoModelSerializer):
     
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'parent', 'content', 'replies', 'created_at']
+        fields = ['id', 'user', 'parent', 'content', 'image', 'replies', 'created_at']
 
     def validate_parent(self, value):
         post = self.context.get('post')
         if value and post and value.post_id != post.id:
             raise serializers.ValidationError('Reply must belong to the same post.')
         return value
+
+    def validate(self, attrs):
+        content = (attrs.get('content') or '').strip()
+        image = attrs.get('image')
+
+        if not content and not image:
+            raise serializers.ValidationError('Comment must include text or an image.')
+
+        return attrs
 
     def get_replies(self, obj):
         replies = obj.replies.select_related('user', 'parent').order_by('created_at')
