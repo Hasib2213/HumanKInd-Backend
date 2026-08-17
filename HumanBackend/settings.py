@@ -48,6 +48,10 @@ SSL_COMMERZ_STORE_ID = os.getenv('STORE_ID')
 SSL_COMMERZ_STORE_PASS = os.getenv('STORE_PASS')
 SSL_COMMERZ_SANDBOX = os.getenv('SSL_COMMERZ_SANDBOX', 'True') == 'True'
 SSL_COMMERZ_BASE_URL = 'https://sandbox.sslcommerz.com' if SSL_COMMERZ_SANDBOX else 'https://securepay.sslcommerz.com'
+DAILY_AFFIRMATION_SERVICE_URL = os.getenv('DAILY_AFFIRMATION_SERVICE_URL', 'http://187.127.98.88:8050/api/daily_affirmation')
+DAILY_AFFIRMATION_SERVICE_TIMEOUT = int(os.getenv('DAILY_AFFIRMATION_SERVICE_TIMEOUT', '240'))
+AI_MEDITATION_SERVICE_URL = os.getenv('AI_MEDITATION_SERVICE_URL', 'http://187.127.98.88:8050/api/AI_Meditation')
+AI_MEDITATION_SERVICE_TIMEOUT = int(os.getenv('AI_MEDITATION_SERVICE_TIMEOUT', '240'))
 
 ALLOWED_HOSTS = ['https://nephelinitic-kaiden-instinctive.ngrok-free.dev/', 'localhost', '[IP_ADDRESS]', '*']   
 

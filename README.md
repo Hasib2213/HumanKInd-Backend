@@ -15,6 +15,8 @@ Welcome to the backend architecture powering the **HumanKind** ecosystem. This r
 - **🛡️ Custom Admin & Portal Auth**: Specialized endpoints for Staff/Admin authentication complete with a robust 6-digit OTP password recovery flow.
 - **👤 Profile Management & Saves**: Granular control of user attributes, location, contact, and profile avatar uploads. Features categorized user bookmark tables (Saved Posts, Saved Affirmations, Saved Meditations).
 - **🎯 Personalization Engine**: Stores user preferences regarding daily mindfulness practices (interests, daily target duration, obstacle identification, mindfulness experience) to dynamically curate customized feeds.
+- **🌤️ Daily Affirmation Service**: Proxies the FastAPI affirmation endpoint and caches one affirmation per calendar day so the same message stays visible until the next day.
+- **🧘 AI Meditation Service**: Proxies the FastAPI meditation endpoint on each request, generating two guided meditations by mood without caching.
 - **💬 Active Community Hub**: Full-featured posting center allowing optional audio attachments, complete anonymity options, nested commenting, post liking, post sharing increments, and a dedicated community reporting system for moderation.
 - **💳 Premium Subscriptions**: Multi-tiered subscription plan configuration, supporting 7-day trials, activation cycles, and automatic expiration checks.
 
@@ -144,7 +146,18 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `GET` | `/api/personalization/preferences/` | JWT (Required) | Get current user's mindfulness/habit preferences. Creates default if none exists. |
 | **`[x]`** | `PUT` / `PATCH` | `/api/personalization/preferences/` | JWT (Required) | Modify and update customized onboarding preferences/topics. |
 
-### 💬 4. Community Hub (`community`)
+### 🌤️ 4. Daily Affirmations (`content`)
+| Status | Method | Endpoint | Authentication | Function / Action |
+| :---: | :--- | :--- | :---: | :--- |
+| **`[x]`** | `GET` / `POST` | `/api/content/daily-affirmation/` | Public | Fetch the current day's affirmation from the FastAPI service and reuse the cached result until the date changes. |
+
+### 🧘 5. AI Meditations (`content`)
+| Status | Method | Endpoint | Authentication | Function / Action |
+| :---: | :--- | :--- | :---: | :--- |
+| **`[x]`** | `POST` | `/api/content/ai-meditation/` | Public | Generate a two-part meditation by mood on demand. |
+| **`[x]`** | `GET` | `/api/content/ai-meditation/?user_id=<id>&content_id=<id>` | Public | Retrieve a previously generated meditation from the FastAPI service. |
+
+### 💬 6. Community Hub (`community`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/community/posts/` | JWT (Required) | Retrieve the community feed. |
@@ -159,7 +172,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/share/` | JWT (Required) | Increment post share count tracking. |
 | **`[x]`** | `POST` | `/api/community/reports/` | JWT (Required) | File an anonymous or registered report against a post for moderation. |
 
-### 💳 5. Subscription Services (`subscriptions`)
+### 💳 7. Subscription Services (`subscriptions`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/subscriptions/plans/` | JWT (Required) | View list of active premium tier configurations (price, duration). |
@@ -167,7 +180,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `POST` | `/api/subscriptions/subscribe/` | JWT (Required) | Subscribe to a specific plan (automatically calculates trials). |
 | **`[x]`** | `POST` | `/api/subscriptions/cancel/` | JWT (Required) | Cancel the active subscription renewal sequence. |
 
-### 🔔 6. In-App Notifications (`notifications`)
+### 🔔 8. In-App Notifications (`notifications`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/notifications/` | JWT (Required) | Retrieve the user's notification alerts list. |

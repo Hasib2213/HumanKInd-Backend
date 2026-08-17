@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class Affirmation(models.Model):
     text = models.TextField()
@@ -35,3 +36,28 @@ class SavedMeditation(models.Model):
 
     class Meta:
         unique_together = ('meditation', 'user')
+
+
+class DailyAffirmationCache(models.Model):
+    cache_date = models.DateField(unique=True)
+    affirmation_text = models.TextField()
+    voice = models.TextField(blank=True, default='')
+    source_payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-cache_date', '-created_at']
+
+    def __str__(self):
+        return f"Daily affirmation for {self.cache_date.isoformat()}"
+
+    @property
+    def payload(self):
+        return {
+            'affirmation_text': self.affirmation_text,
+            'voice': self.voice,
+        }
+
+    @classmethod
+    def for_today(cls):
+        return cls.objects.filter(cache_date=timezone.localdate()).first()
