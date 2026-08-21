@@ -157,7 +157,12 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `POST` | `/api/content/ai-meditation/` | Public | Generate a two-part meditation by mood on demand. |
 | **`[x]`** | `GET` | `/api/content/ai-meditation/?user_id=<id>&content_id=<id>` | Public | Retrieve a previously generated meditation from the FastAPI service. |
 
-### 💬 6. Community Hub (`community`)
+### 📔 6. Journal (`content`)
+| Status | Method | Endpoint | Authentication | Function / Action |
+| :---: | :--- | :--- | :---: | :--- |
+| **`[x]`** | `POST` | `/api/content/journal/` | Public | Refine a journal question and prompt through the FastAPI service on demand. |
+
+### 💬 7. Community Hub (`community`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/community/posts/` | JWT (Required) | Retrieve the community feed. |
@@ -172,7 +177,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `POST` | `/api/community/posts/<str:post_id>/share/` | JWT (Required) | Increment post share count tracking. |
 | **`[x]`** | `POST` | `/api/community/reports/` | JWT (Required) | File an anonymous or registered report against a post for moderation. |
 
-### 💳 7. Subscription Services (`subscriptions`)
+### 💳 8. Subscription Services (`subscriptions`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/subscriptions/plans/` | JWT (Required) | View list of active premium tier configurations (price, duration). |
@@ -180,7 +185,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `POST` | `/api/subscriptions/subscribe/` | JWT (Required) | Subscribe to a specific plan (automatically calculates trials). |
 | **`[x]`** | `POST` | `/api/subscriptions/cancel/` | JWT (Required) | Cancel the active subscription renewal sequence. |
 
-### 🔔 8. In-App Notifications (`notifications`)
+### 🔔 9. In-App Notifications (`notifications`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/notifications/` | JWT (Required) | Retrieve the user's notification alerts list. |

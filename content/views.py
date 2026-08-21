@@ -118,6 +118,43 @@ class AIMeditationView(APIView):
 
 		return Response(payload, status=status.HTTP_200_OK)
 
+
+class JournalView(APIView):
+	permission_classes = [permissions.AllowAny]
+
+	def post(self, request):
+		question = request.data.get('question')
+		prompt = request.data.get('prompt')
+
+		if not question or not prompt:
+			return Response(
+				{'detail': 'question and prompt are required.'},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		service_url = getattr(
+			settings,
+			'JOURNAL_SERVICE_URL',
+			'http://187.127.98.88:8050/api/journal',
+		)
+		timeout = getattr(settings, 'JOURNAL_SERVICE_TIMEOUT', 240)
+
+		try:
+			response = requests.post(
+				service_url,
+				json={'question': question, 'prompt': prompt},
+				timeout=timeout,
+			)
+			response.raise_for_status()
+			payload = response.json()
+		except requests.RequestException as exc:
+			return Response(
+				{'detail': f'Unable to reach the journal service: {exc}'},
+				status=status.HTTP_502_BAD_GATEWAY,
+			)
+
+		return Response(payload, status=status.HTTP_200_OK)
+
 	def get(self, request):
 		user_id = request.query_params.get('user_id')
 		content_id = request.query_params.get('content_id')
