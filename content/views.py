@@ -7,7 +7,8 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import DailyAffirmationCache
+from .models import DailyAffirmationCache, JournalEntry
+from .serializers import JournalEntrySerializer
 
 
 def fetch_daily_affirmation_from_service():
@@ -147,6 +148,16 @@ class JournalView(APIView):
 			)
 			response.raise_for_status()
 			payload = response.json()
+			
+			# Save to local database
+			user = request.user if request.user.is_authenticated else None
+			JournalEntry.objects.create(
+				user=user,
+				question=question,
+				prompt=prompt,
+				ai_response=payload
+			)
+			
 		except requests.RequestException as exc:
 			return Response(
 				{'detail': f'Unable to reach the journal service: {exc}'},
@@ -156,21 +167,12 @@ class JournalView(APIView):
 		return Response(payload, status=status.HTTP_200_OK)
 
 	def get(self, request):
-		user_id = request.query_params.get('user_id')
-		content_id = request.query_params.get('content_id')
-
-		if not user_id or not content_id:
+		if not request.user.is_authenticated:
 			return Response(
-				{'detail': 'user_id and content_id are required.'},
-				status=status.HTTP_400_BAD_REQUEST,
+				{'detail': 'Authentication required to view journal history.'},
+				status=status.HTTP_401_UNAUTHORIZED
 			)
-
-		try:
-			payload = proxy_ai_meditation_request('GET', params={'user_id': user_id, 'content_id': content_id})
-		except requests.RequestException as exc:
-			return Response(
-				{'detail': f'Unable to reach the AI meditation service: {exc}'},
-				status=status.HTTP_502_BAD_GATEWAY,
-			)
-
-		return Response(payload, status=status.HTTP_200_OK)
+			
+		journals = JournalEntry.objects.filter(user=request.user)
+		serializer = JournalEntrySerializer(journals, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)

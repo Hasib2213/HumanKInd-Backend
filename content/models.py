@@ -61,3 +61,16 @@ class DailyAffirmationCache(models.Model):
     @classmethod
     def for_today(cls):
         return cls.objects.filter(cache_date=timezone.localdate()).first()
+
+class JournalEntry(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='journals', null=True, blank=True)
+    question = models.TextField()
+    prompt = models.TextField()
+    ai_response = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Journal on {self.created_at.date()}"

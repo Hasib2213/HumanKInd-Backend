@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Affirmation, SavedAffirmation, Meditation, SavedMeditation
+from .models import Affirmation, SavedAffirmation, Meditation, SavedMeditation, JournalEntry
 from HumanBackend.serializer_utils import MongoModelSerializer
+from Authapp.serializers import UserSerializer
 
 class AffirmationSerializer(MongoModelSerializer):
     class Meta:
@@ -25,3 +26,10 @@ class SavedMeditationSerializer(MongoModelSerializer):
     class Meta:
         model = SavedMeditation
         fields = ['id', 'meditation', 'saved_at']
+
+class JournalEntrySerializer(MongoModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = JournalEntry
+        fields = ['id', 'user', 'question', 'prompt', 'ai_response', 'created_at']
