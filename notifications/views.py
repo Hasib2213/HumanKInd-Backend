@@ -2,8 +2,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Notification
-from .serializers import NotificationSerializer
+from .models import Notification, NotificationPreference, DeviceToken
+from .serializers import NotificationSerializer, NotificationPreferenceSerializer, DeviceTokenSerializer
 
 class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
@@ -32,3 +32,27 @@ class NotificationReadView(APIView):
         
         serializer = NotificationSerializer(notification)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class NotificationPreferenceView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        pref, _ = NotificationPreference.objects.get_or_create(user=request.user)
+        serializer = NotificationPreferenceSerializer(pref)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        pref, _ = NotificationPreference.objects.get_or_create(user=request.user)
+        serializer = NotificationPreferenceSerializer(pref, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterDeviceTokenView(generics.CreateAPIView):
+    serializer_class = DeviceTokenSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        token = serializer.validated_data.get('token')
+        DeviceToken.objects.get_or_create(user=self.request.user, token=token)
