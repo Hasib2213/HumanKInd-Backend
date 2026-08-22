@@ -3,7 +3,7 @@ from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Post, Comment, Like, SavedPost, Report
+from .models import Post, Comment, Like, SavedPost, Report, CommentLike
 from .serializers import PostSerializer, CommentSerializer, ReportSerializer
 
 
@@ -120,6 +120,30 @@ class LikeToggleView(APIView):
             )
         
         return Response({"message": "Post liked", "is_liked": True}, status=status.HTTP_201_CREATED)
+
+class CommentLikeToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, post_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
+        like, created = CommentLike.objects.get_or_create(user=request.user, comment=comment)
+        
+        if not created:
+            like.delete()
+            return Response({"message": "Comment unliked", "is_liked": False}, status=status.HTTP_200_OK)
+        
+        # Notify comment owner if liked by someone else
+        if comment.user != request.user:
+            from notifications.models import Notification
+            liker_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.email
+            Notification.objects.create(
+                user=comment.user,
+                title="Comment Liked",
+                message=f"{liker_name} liked your comment.",
+                notification_type='like'
+            )
+        
+        return Response({"message": "Comment liked", "is_liked": True}, status=status.HTTP_201_CREATED)
 
 class SaveToggleView(APIView):
     permission_classes = [permissions.IsAuthenticated]

@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     PostListCreateView, PostDetailView, CommentListCreateView, CommentDetailView,
-    LikeToggleView, SaveToggleView, SharePostView, ReportCreateView
+    LikeToggleView, SaveToggleView, SharePostView, ReportCreateView, CommentLikeToggleView
 )
 
 urlpatterns = [
@@ -9,6 +9,7 @@ urlpatterns = [
     path('posts/<str:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('posts/<str:post_id>/comments/', CommentListCreateView.as_view(), name='comment-list-create'),
     path('posts/<str:post_id>/comments/<str:pk>/', CommentDetailView.as_view(), name='comment-detail'),
+    path('posts/<str:post_id>/comments/<str:comment_id>/like/', CommentLikeToggleView.as_view(), name='comment-like-toggle'),
     path('posts/<str:post_id>/like/', LikeToggleView.as_view(), name='like-toggle'),
     path('posts/<str:post_id>/save/', SaveToggleView.as_view(), name='save-toggle'),
     path('posts/<str:post_id>/share/', SharePostView.as_view(), name='share-post'),

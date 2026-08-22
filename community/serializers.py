@@ -7,10 +7,13 @@ class CommentSerializer(MongoModelSerializer):
     user = UserSerializer(read_only=True)
     parent = MongoPrimaryKeyRelatedField(queryset=Comment.objects.all(), required=False, allow_null=True)
     replies = serializers.SerializerMethodField()
+    likes_count = serializers.IntegerField(source='likes.count', read_only=True)
+    is_liked = serializers.SerializerMethodField()
+    liked_by = serializers.SerializerMethodField()
     
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'parent', 'content', 'image', 'replies', 'created_at']
+        fields = ['id', 'user', 'parent', 'content', 'image', 'replies', 'created_at', 'likes_count', 'is_liked', 'liked_by']
 
     def validate_parent(self, value):
         post = self.context.get('post')
@@ -30,6 +33,16 @@ class CommentSerializer(MongoModelSerializer):
     def get_replies(self, obj):
         replies = obj.replies.select_related('user', 'parent').order_by('created_at')
         return CommentSerializer(replies, many=True, context=self.context).data
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
+    def get_liked_by(self, obj):
+        likers = obj.likes.select_related('user').order_by('-created_at')
+        return [UserSerializer(like.user).data for like in likers]
 
 class PostSerializer(MongoModelSerializer):
     user = serializers.SerializerMethodField()
