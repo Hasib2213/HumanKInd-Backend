@@ -156,3 +156,4 @@ whitenoise
 wikipedia
 yarl
 rest_framework_simplejwt
+firebase-admin
