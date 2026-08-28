@@ -8,7 +8,7 @@ class UserProfile(models.Model):
     full_name = models.CharField(max_length=255, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=255, blank=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='HumanKind/profile_pics/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.email}'s Profile"

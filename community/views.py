@@ -25,7 +25,16 @@ class PostListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        post = serializer.save(user=self.request.user)
+        
+        from .models import PostImage, PostVideo
+        images = self.request.FILES.getlist('images')
+        for img in images:
+            PostImage.objects.create(post=post, image=img)
+            
+        videos = self.request.FILES.getlist('videos')
+        for vid in videos:
+            PostVideo.objects.create(post=post, video=vid)
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()

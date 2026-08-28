@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class Affirmation(models.Model):
     text = models.TextField()
-    audio_file = models.FileField(upload_to='affirmations/audio/', blank=True, null=True)
+    audio_file = models.FileField(upload_to='HumanKind/affirmations/audio/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -21,8 +21,8 @@ class SavedAffirmation(models.Model):
 class Meditation(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    thumbnail = models.ImageField(upload_to='meditations/thumbnails/', blank=True, null=True)
-    audio_file = models.FileField(upload_to='meditations/audio/')
+    thumbnail = models.ImageField(upload_to='HumanKind/meditations/thumbnails/', blank=True, null=True)
+    audio_file = models.FileField(upload_to='HumanKind/meditations/audio/')
     duration = models.CharField(max_length=50, help_text="e.g., '2 Min'")
     created_at = models.DateTimeField(auto_now_add=True)
 

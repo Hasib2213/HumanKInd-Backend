@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment, Like, SavedPost, Report
+from .models import Post, Comment, Like, SavedPost, Report, PostImage, PostVideo
 from Authapp.serializers import UserSerializer
 from HumanBackend.serializer_utils import MongoModelSerializer, MongoPrimaryKeyRelatedField
 
@@ -13,7 +13,7 @@ class CommentSerializer(MongoModelSerializer):
     
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'parent', 'content', 'image', 'replies', 'created_at', 'likes_count', 'is_liked', 'liked_by']
+        fields = ['id', 'user', 'parent', 'content', 'image', 'video', 'replies', 'created_at', 'likes_count', 'is_liked', 'liked_by']
 
     def validate_parent(self, value):
         post = self.context.get('post')
@@ -24,9 +24,10 @@ class CommentSerializer(MongoModelSerializer):
     def validate(self, attrs):
         content = (attrs.get('content') or '').strip()
         image = attrs.get('image')
+        video = attrs.get('video')
 
-        if not content and not image:
-            raise serializers.ValidationError('Comment must include text or an image.')
+        if not content and not image and not video:
+            raise serializers.ValidationError('Comment must include text, an image, or a video.')
 
         return attrs
 
@@ -44,6 +45,16 @@ class CommentSerializer(MongoModelSerializer):
         likers = obj.likes.select_related('user').order_by('-created_at')
         return [UserSerializer(like.user).data for like in likers]
 
+class PostImageSerializer(MongoModelSerializer):
+    class Meta:
+        model = PostImage
+        fields = ['id', 'image', 'created_at']
+
+class PostVideoSerializer(MongoModelSerializer):
+    class Meta:
+        model = PostVideo
+        fields = ['id', 'video', 'created_at']
+
 class PostSerializer(MongoModelSerializer):
     user = serializers.SerializerMethodField()
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
@@ -52,11 +63,13 @@ class PostSerializer(MongoModelSerializer):
     is_saved = serializers.SerializerMethodField()
     liked_by = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    images = PostImageSerializer(many=True, read_only=True)
+    videos = PostVideoSerializer(many=True, read_only=True)
     
     class Meta:
         model = Post
         fields = [
-            'id', 'user', 'content', 'audio_file', 'is_anonymous', 
+            'id', 'user', 'content', 'audio_file', 'images', 'videos', 'is_anonymous', 
             'share_count', 'likes_count', 'comments_count', 
             'is_liked', 'is_saved', 'liked_by', 'comments', 'created_at', 'updated_at'
         ]

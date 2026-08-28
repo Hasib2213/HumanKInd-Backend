@@ -24,7 +24,7 @@ def validate_comment_image_file(value):
 class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField()
-    audio_file = models.FileField(upload_to='community/audio/', blank=True, null=True)
+    audio_file = models.FileField(upload_to='HumanKind/community/audio/', blank=True, null=True)
     is_anonymous = models.BooleanField(default=False)
     share_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,6 +32,16 @@ class Post(models.Model):
 
     def __str__(self):
         return f"Post by {self.user.email} at {self.created_at}"
+
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
+    image = models.FileField(upload_to='HumanKind/community/post_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class PostVideo(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='videos')
+    video = models.FileField(upload_to='HumanKind/community/post_videos/')
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
@@ -45,10 +55,15 @@ class Comment(models.Model):
     )
     content = models.TextField(blank=True)
     image = models.FileField(
-        upload_to='community/comment_images/',
+        upload_to='HumanKind/community/comment_images/',
         blank=True,
         null=True,
         validators=[validate_comment_image_file],
+    )
+    video = models.FileField(
+        upload_to='HumanKind/community/comment_videos/',
+        blank=True,
+        null=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

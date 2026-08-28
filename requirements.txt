@@ -157,3 +157,6 @@ wikipedia
 yarl
 rest_framework_simplejwt
 firebase-admin
+django-cloudinary-storage
+
+
