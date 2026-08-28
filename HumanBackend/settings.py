@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'content',
     'subscriptions',
     'notifications',
+    'progress',
 ]
 
 MIDDLEWARE = [

@@ -55,7 +55,15 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Database Initial Setup
+### 3. Firebase Setup (For Push Notifications)
+To enable push notifications in the app, you must link your Firebase project:
+1. Go to your **Firebase Console** -> Project Settings -> Service Accounts.
+2. Click **Generate New Private Key**.
+3. Download the `.json` file.
+4. Rename the downloaded file to exactly **`firebase-adminsdk.json`**.
+5. Place this file inside the main project directory (the same folder where `manage.py` is located).
+
+### 4. Database Initial Setup
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
@@ -154,7 +162,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 ### 🧘 5. AI Meditations (`content`)
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :--- | :--- | :---: | :--- |
-| **`[x]`** | `POST` | `/api/content/ai-meditation/` | Public | Generate a two-part meditation by mood on demand. |
+| **`[x]`** | `POST` | `/api/content/ai-meditation/` | Public | Generate a two-part meditation by mood on demand. (Automatically saves `mood` if passed). |
 | **`[x]`** | `GET` | `/api/content/ai-meditation/?user_id=<id>&content_id=<id>` | Public | Retrieve a previously generated meditation from the FastAPI service. |
 
 ### 📔 6. Journal (`content`)
@@ -166,7 +174,7 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | Status | Method | Endpoint | Authentication | Function / Action |
 | :---: | :---: | :--- | :---: | :--- |
 | **`[x]`** | `GET` | `/api/community/posts/` | JWT (Required) | Retrieve the community feed. |
-| **`[x]`** | `POST` | `/api/community/posts/` | JWT (Required) | Share a post (supports text, audio uploads, and optional anonymity). |
+| **`[x]`** | `POST` | `/api/community/posts/` | JWT (Required) | Share a post (supports text, multiple `images`, multiple `videos`, audio uploads, and optional anonymity). |
 | **`[x]`** | `GET` | `/api/community/posts/<str:pk>/` | JWT (Required) | Retrieve details for a single community post. |
 | **`[x]`** | `PUT` / `PATCH` | `/api/community/posts/<str:pk>/` | JWT (Required) | Modify contents of a post (restricted to post author). |
 | **`[x]`** | `DELETE` | `/api/community/posts/<str:pk>/` | JWT (Required) | Permanently delete a community post (restricted to post author). |
@@ -191,6 +199,13 @@ Here is the master checklist detailing every endpoint developed in this backend 
 | **`[x]`** | `GET` | `/api/notifications/` | JWT (Required) | Retrieve the user's notification alerts list. |
 | **`[x]`** | `POST` | `/api/notifications/read/` | JWT (Required) | Mark all user's notifications as read. |
 | **`[x]`** | `PATCH` | `/api/notifications/read/` | JWT (Required) | Mark a specific notification ID as read. |
+
+### 📈 10. Progress Dashboard (`progress`)
+| Status | Method | Endpoint | Authentication | Function / Action |
+| :---: | :---: | :--- | :---: | :--- |
+| **`[x]`** | `GET` | `/api/progress/` | JWT (Required) | Retrieve the full progress dashboard data (streaks, weekly activity, community voice, and 7-day mood chart). |
+| **`[x]`** | `POST` | `/api/progress/mood/` | JWT (Required) | Manually log a user's daily mood ("Happy", "Confident", etc.). |
+| **`[x]`** | `POST` | `/api/progress/activity/` | JWT (Required) | Log a completed activity ("calming_session", "mindful_breathing", "affirmation"). |
 
 ---
 

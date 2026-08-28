@@ -108,7 +108,24 @@ def proxy_ai_meditation_request(method, payload=None, params=None):
 class AIMeditationView(APIView):
 	permission_classes = [permissions.AllowAny]
 
+	def get(self, request):
+		try:
+			# Pass query parameters (like user_id, content_id) directly to the FastAPI server
+			payload = proxy_ai_meditation_request('GET', params=request.query_params)
+		except requests.RequestException as exc:
+			return Response(
+				{'detail': f'Unable to reach the AI meditation service: {exc}'},
+				status=status.HTTP_502_BAD_GATEWAY,
+			)
+		return Response(payload, status=status.HTTP_200_OK)
+
 	def post(self, request):
+		# Automatically save the mood for the Progress chart if provided
+		mood = request.data.get('mood')
+		if mood and request.user.is_authenticated:
+			from progress.models import MoodLog
+			MoodLog.objects.create(user=request.user, mood=mood)
+
 		try:
 			payload = proxy_ai_meditation_request('POST', payload=request.data)
 		except requests.RequestException as exc:
