@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from admin_panel.views import PublicPlatformSettingView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +28,10 @@ urlpatterns = [
     path('api/subscriptions/', include('subscriptions.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/progress/', include('progress.urls')),
+    path('api/admin/', include('admin_panel.urls')),
+    
+    # Public Platform Settings API
+    path('api/platform-settings/', PublicPlatformSettingView.as_view(), name='public_platform_setting'),
 ]
 from django.conf import settings
 from django.conf.urls.static import static
